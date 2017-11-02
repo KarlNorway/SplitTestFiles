@@ -120,11 +120,13 @@ int detectSampleTime(std::string &fileName)  // function to detect time scale of
 	return timing;
 }
 
-int arraySize(int timeDiff, std::fstream& fName, int32_t startingPos, std::string fromFile, int filePart) { //calculates the total numbers of line to save as file part
-
+int arraySize(int timeDiff, std::fstream& fName, int32_t startingPos, std::string& fromFile, int filePart, std::string& maxCurrent) { //calculates the total numbers of line to save as file part
+	uint32_t endLineNo;
 	uint32_t lineNo = findLine(fName, -3, startingPos);
 	uint32_t startLineNo = lineNo - (120 * timeDiff);
-	uint32_t endLineNo = lineNo + ( 440 * timeDiff);
+	if(maxCurrent == "10" || maxCurrent == "-10")	endLineNo = lineNo + ( 440 * timeDiff);
+	else if (maxCurrent == "20" || maxCurrent == "-20")  endLineNo = lineNo + (600 * timeDiff);
+	else if (maxCurrent == "30" || maxCurrent == "-30")	 endLineNo = lineNo + (760 * timeDiff);
 
 	uint32_t numberOfLines = endLineNo - startLineNo ;
 	endline = endLineNo;
@@ -134,46 +136,46 @@ int arraySize(int timeDiff, std::fstream& fName, int32_t startingPos, std::strin
 	return numberOfLines;
 }
 
-int32_t makeFilePartArray(std::string fileFrom, int timeDiff, int partNo, int32_t line) {
+int32_t makeFilePartArray(std::string fileFrom, int timeDiff, int partNo, int32_t line, std::string& current) {
 	
 
 	std::fstream fIn;
 	fIn.open(fileFrom);
-	int arSz = arraySize(timeDiff, fIn, line, fileFrom, partNo);
+	int arSz = arraySize(timeDiff, fIn, line, fileFrom, partNo, current);
 	fIn.close();
 	return arSz;
 }
 
 
-//int main(int argc, char* argv[])
-int main()
+int main(int argc, char* argv[])
+//int main()
 {
 	clock_t t;
 	t = clock();
 	std::fstream fIn; 
-	std::string fileName, saveFileName;
+	std::string fileName, saveFileName, strCurr;
 		// Check the number of parameters
-	//if (argc < 2) {
-	//	 Tell the user how to run the program
-	//	std::cerr << "Usage: " << argv[0] << " File path and name" << std::endl;
-	//	/* "Usage messages" are a conventional way of telling the user
-	//	* how to run a program if they enter the command incorrectly.
-	//	*/
-	//	return 1;
+	if (argc < 3) {
+		// Tell the user how to run the program
+		std::cerr << "Usage: " << argv[0] << " File path and name, and max current in the test" << std::endl;
+		/* "Usage messages" are a conventional way of telling the user
+		* how to run a program if they enter the command incorrectly.
+		*/
+		return 1;
 
-	//}
-	//std::string current_exec_name = argv[0]; // Name of the current exec program
-	//std::vector<std::string> all_args;
+	}
+	std::string current_exec_name = argv[0]; // Name of the current exec program
+	std::vector<std::string> all_args;
 
-	//if (argc > 1) {
+	if (argc > 1) {
 
-	//	fileName = argv[1];
-
-	//	all_args.assign(argv + 1, argv + argc);
-	//}
+		fileName = argv[1];
+		strCurr = argv[2];
+		all_args.assign(argv + 1, argv + argc);
+	}
 	//std::cout << argv[0];
 	//std::cout << " is trying to open: " << fileName << std::endl;
-	fileName = "C:\\Users\\karlk\\Documents\\General.Testing\\GK test data\\Cellpreformance\\LOGS\\18650-MJ1-20171026_edited.csv";
+	//fileName = "C:\\Users\\karlk\\Documents\\General.Testing\\GK test data\\Cellpreformance\\LOGS\\18650-MJ1-20171026_edited.csv";
 	fIn.open(fileName, std::ios::in);
 	int partNo = 1;
 	int32_t lines;
@@ -183,7 +185,7 @@ int main()
 		int32_t lineNo = 25;
 		int time = detectSampleTime(fileName);
 		for (t = 0; t < 11; t++) {
-			lines = makeFilePartArray(fileName, time, partNo, lineNo);
+			lines = makeFilePartArray(fileName, time, partNo, lineNo, strCurr);
 			partNo++;
 			//std::cout << "file part number: " << partNo << std::endl;
 			lineNo = endline + (600*time);
