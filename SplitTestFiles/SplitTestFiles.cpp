@@ -124,9 +124,9 @@ int arraySize(int timeDiff, std::fstream& fName, int32_t startingPos, std::strin
 	uint32_t endLineNo;
 	uint32_t lineNo = findLine(fName, -3, startingPos);
 	uint32_t startLineNo = lineNo - (120 * timeDiff);
-	if(maxCurrent == "10" || maxCurrent == "-10")	endLineNo = lineNo + ( 440 * timeDiff);
-	else if (maxCurrent == "20" || maxCurrent == "-20")  endLineNo = lineNo + (600 * timeDiff);
-	else if (maxCurrent == "30" || maxCurrent == "-30")	 endLineNo = lineNo + (760 * timeDiff);
+	if(maxCurrent == "10" || maxCurrent == "-10")	endLineNo = lineNo + ( 500 * timeDiff);
+	else if (maxCurrent == "20" || maxCurrent == "-20")  endLineNo = lineNo + (650 * timeDiff);
+	else if (maxCurrent == "30" || maxCurrent == "-30")	 endLineNo = lineNo + (920 * timeDiff);
 
 	uint32_t numberOfLines = endLineNo - startLineNo ;
 	endline = endLineNo;
