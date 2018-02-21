@@ -9,7 +9,7 @@
 #include <vector>
 #include <algorithm>
 
-uint32_t endline;
+double endline;
 
 
 std::string fixFileName(std::string &fileName, int partNo) {
@@ -23,7 +23,7 @@ std::string fixFileName(std::string &fileName, int partNo) {
 	return newFile;
 
 }
-void writeArray( std::fstream& arrFile, int partOfFile, int startLine, std::string fromFile, int16_t numlines)
+void writeArray( std::fstream& arrFile, int partOfFile, double startLine, std::string fromFile, double numlines)
 {
 	//std::fstream fIn;
 	arrFile.seekg(0, std::ios::beg);
@@ -32,11 +32,11 @@ void writeArray( std::fstream& arrFile, int partOfFile, int startLine, std::stri
 	//fIn.open(fromFile);
 	fOut.open(saveFileName, std::ios::app);
 	std::string placeHolder;
-	for (int f = 0; f < startLine; f++)
+	for (double f = 0; f < startLine; f++)
 	{
 		getline(arrFile, placeHolder);
 	}
-	for (int r = 0 ; r < numlines + 1 ; r++)
+	for (double r = 0 ; r < numlines + 1 ; r++)
 
 	{
 		getline(arrFile, placeHolder);
@@ -48,9 +48,9 @@ void writeArray( std::fstream& arrFile, int partOfFile, int startLine, std::stri
 	fOut.close();
 }
 
-int32_t findLine(std::fstream& fileLines, double detNo, int32_t startpos)
+double findLine(std::fstream& fileLines, double detNo, double startpos)
 {
-	uint32_t lineNo = 0;
+	double lineNo = 0;
 	std::string s;
 		
 	for (int p = 0; p < startpos; p++)
@@ -79,10 +79,8 @@ int32_t findLine(std::fstream& fileLines, double detNo, int32_t startpos)
 	//std::cout << "Found: " << detNo << " @ line " << lineNo << std::endl;
 	return lineNo;
 }
-int detectSampleTime(std::string &fileName)  // function to detect time scale of log file
+double detectSampleTime(std::string &fileName)  // function to detect time scale of log file
 {
-
-	int timing;
 	std::fstream fIn;
 	fIn.open(fileName, std::ios::in);
 	std::string s1, s2;
@@ -104,31 +102,20 @@ int detectSampleTime(std::string &fileName)  // function to detect time scale of
 	double ts1 = std::stod(s1);
 	double ts2 = std::stod(s2);
 	double diff = ts2 - ts1;
-	//std::cout << "Timestamp 1: " << ts1 << " Timestamp 2: " << ts2 << " Diff: " << diff << std::endl;
-	if (diff > 0.15)
-	{
-		timing = 5;
-	}
-	else if (diff > 0.07)
-	{
-		timing = 10;
-	}
-	else {
-		timing = 20;
-	}
-	std::cout << "Time difference is set to: " << timing << std::endl;
-	return timing;
+	std::cout << "Timestamp 1: " << ts1 << " Timestamp 2: " << ts2 << " Diff: " << diff << std::endl;
+
+	return diff;
 }
 
-int arraySize(int timeDiff, std::fstream& fName, int32_t startingPos, std::string& fromFile, int filePart, std::string& maxCurrent) { //calculates the total numbers of line to save as file part
-	uint32_t endLineNo;
-	uint32_t lineNo = findLine(fName, -3, startingPos);
-	uint32_t startLineNo = lineNo - (120 * timeDiff);
-	if(maxCurrent == "10" || maxCurrent == "-10")	endLineNo = lineNo + ( 500 * timeDiff);
-	else if (maxCurrent == "20" || maxCurrent == "-20")  endLineNo = lineNo + (650 * timeDiff);
-	else if (maxCurrent == "30" || maxCurrent == "-30")	 endLineNo = lineNo + (920 * timeDiff);
+double arraySize(double timeDiff, std::fstream& fName, double startingPos, std::string& fromFile, int filePart, std::string& maxCurrent) { //calculates the total numbers of line to save as file part
+	double endLineNo;
+	double lineNo = findLine(fName, -3, startingPos);
+	double startLineNo = lineNo - (120 / timeDiff);
+	if(maxCurrent == "10" || maxCurrent == "-10")	endLineNo = lineNo + ( 650 / timeDiff);
+	else if (maxCurrent == "20" || maxCurrent == "-20")  endLineNo = lineNo + (770 / timeDiff);
+	else if (maxCurrent == "30" || maxCurrent == "-30")	 endLineNo = lineNo + (1040 / timeDiff);
 
-	uint32_t numberOfLines = endLineNo - startLineNo ;
+	double numberOfLines = endLineNo - startLineNo ;
 	endline = endLineNo;
 	std::cout << "Lines: " << lineNo << " " << startLineNo << " " << endLineNo << std::endl;
 	std::cout<< " Total number of lines to be stores in new file: " << numberOfLines << std::endl;
@@ -136,12 +123,12 @@ int arraySize(int timeDiff, std::fstream& fName, int32_t startingPos, std::strin
 	return numberOfLines;
 }
 
-int32_t makeFilePartArray(std::string fileFrom, int timeDiff, int partNo, int32_t line, std::string& current) {
+double makeFilePartArray(std::string fileFrom, double timeDiff, int partNo, double line, std::string& current) {
 	
 
 	std::fstream fIn;
 	fIn.open(fileFrom);
-	int arSz = arraySize(timeDiff, fIn, line, fileFrom, partNo, current);
+	double arSz = arraySize(timeDiff, fIn, line, fileFrom, partNo, current);
 	fIn.close();
 	return arSz;
 }
@@ -175,15 +162,22 @@ int main(int argc, char* argv[])
 	}
 	//std::cout << argv[0];
 	//std::cout << " is trying to open: " << fileName << std::endl;
-	//fileName = "C:\\Users\\karlk\\Documents\\General.Testing\\GK test data\\Cellpreformance\\LOGS\\18650-MJ1-20171026_edited.csv";
-	fIn.open(fileName, std::ios::in);
+	//fileName = "C:\Users\karlk\sky.grenlandenergycloud.com\GV2 Testing\03 Development\Performance\GK test data\LOGS\18650-HE4-HT-20180.csv";
+	try {
+		fIn.open(fileName, std::ios::in);
+	}
+	catch (std::ios_base::failure& e) {
+		std::cerr << e.what() << '\n';
+		return 0;
+	}
+	
 	int partNo = 1;
-	int32_t lines;
+	double lines;
 
 	if (fIn.is_open())
 	{
-		int32_t lineNo = 25;
-		int time = detectSampleTime(fileName);
+		double lineNo = 25;
+		double time = detectSampleTime(fileName);
 		for (t = 0; t < 11; t++) {
 			lines = makeFilePartArray(fileName, time, partNo, lineNo, strCurr);
 			partNo++;
@@ -194,6 +188,7 @@ int main(int argc, char* argv[])
 	}
 	else {
 		std::cout << "Error opening file " << errno << " " << std::endl;
+		
 	}
 	t = clock() - t;
 	std::cout << "Minutes: " << (t*1.0 / CLOCKS_PER_SEC) / 60 << std::endl;
